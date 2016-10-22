@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta charset="utf-8" />
+    <title>Ramen Tour 2016 TOKYO</title>
+    <style type="text/css">
+     html, body { height: 100%; margin: 0; padding: 0; }
+     #map { height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script type="text/javascript">
+     
+     var map;
+     function initMap() {
+       var map = new google.maps.Map(document.getElementById('map'), {
+	 center: {lat: 35.685175, lng: 139.7528},
+	 zoom: 12,
+	 mapTypeId: google.maps.MapTypeId.TERRAIN
+       });
+       var layer = new google.maps.FusionTablesLayer({
+	 query: {
+	   select: 'latitude',
+	   from: '1L-g68T-F5XVQlkDQOgRD4Az4yj9BlyFpsr4NV-0H'
+	 }
+       });
+       layer.setMap(map);
+     }
+     
+    </script>
+    <script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAlM3aSSSeiBLMo2aQ3_EuUtK_NdtH-IU&language=ja&region=JP&callback=initMap" type="text/javascript">
+    </script>
+  </body>
+</html>
