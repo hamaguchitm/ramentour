@@ -17,31 +17,54 @@
     #filter {
       top:10px; right:10px;
     }
+    #visible {
+      bottom:10px; left:10px;
+    }
+    #adjust {
+      bottom:10px; left:120px;
+    }
     </style>
   </head>
   <body>
     <div id="map"></div>
-    <img id="route_img" src="./img/tennis_ball.png" alt="Tennis Ball" />
     <div class="custom-control" id="filter">
-      <input type="radio" name="filter"  onChange="changeFilter()" value="all" checked="true">all</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="delegate1">delegate(lv.1)</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="delegate2">delegate(lv.2)</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="everyone">everyone</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="someone">someone</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="kambe">kambe</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="iga">iga</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="kazu">kazu</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="hama">hama</input>
-      <input type="radio" name="filter"  onChange="changeFilter()" value="square">square</input>
+      <input type="radio" name="filter"  onChange="changeFilter('all')" checked="true">all</input>
+      <input type="radio" name="filter"  onChange="changeFilter('delegate1')">delegate(lv.1)</input>
+      <input type="radio" name="filter"  onChange="changeFilter('delegate2')">delegate(lv.2)</input>
+      <input type="radio" name="filter"  onChange="changeFilter('everyone')">everyone</input>
+      <input type="radio" name="filter"  onChange="changeFilter('someone')">someone</input>
+      <input type="radio" name="filter"  onChange="changeFilter('kambe')">kambe</input>
+      <input type="radio" name="filter"  onChange="changeFilter('iga')">iga</input>
+      <input type="radio" name="filter"  onChange="changeFilter('kazu')">kazu</input>
+      <input type="radio" name="filter"  onChange="changeFilter('hama')">hama</input>
+      <input type="radio" name="filter"  onChange="changeFilter('square')">square</input>
+    </div>
+    <div class="custom-control" id="visible">
+      <input type="radio" name="visible" onChange="showOverlay()" checked="true" />show
+      <input type="radio" name="visible" onChange="hideOverlay()" />hide
+    </div>
+    <div class="custom-control" id="adjust">
+      <input type="button" value="&and;" onClick="shiftOverlay('up')" />
+      <input type="button" value="&or;"  onClick="shiftOverlay('down')" />
+      <input type="button" value="&lt;"  onClick="shiftOverlay('right')" />
+      <input type="button" value="&gt;"  onClick="shiftOverlay('left')" />
+      <input type="button" value="+" onClick="zoomOverlay('+')" />
+      <input type="button" value="-" onClick="zoomOverlay('-')" />
     </div>
     <script type="text/javascript">
+    var CENTER = {lat: 35.685175, lng: 139.7528};
+    
     var map;
     var layer;
-    var layerOptions
+    var layerOptions;
+    var overlay;
+    var overlayZoom = 1.0;
+    var overlayDLat = 0.0;
+    var overlayDLng = 0.0;
     
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
-	center: {lat: 35.685175, lng: 139.7528},
+	center: CENTER,
 	zoom: 12,
 	mapTypeId: google.maps.MapTypeId.TERRAIN
       });
@@ -62,19 +85,83 @@
       layer.setOptions(layerOptions);
       layer.setMap(map);
 
+      setupOverlay();
     }
 
-    function changeFilter() {
-      var filter = document.getElementsByName('filter');
-      var val = '';
-      for (i=0; i < filter.length; i++) {
-	if (filter[i].checked) {
-	  val = filter[i].value;
-	}
-      }
+    function showOverlay() {
+      overlay.setMap(map);
+      var adjustDiv = document.getElementById('adjust');
+      adjustDiv.style.visibility = 'visible';
+    };
+    function hideOverlay() {
+      overlay.setMap(null);
+      var adjustDiv = document.getElementById('adjust');
+      adjustDiv.style.visibility = 'hidden';
+    }
+    
+    function setupOverlay() {
+      var overlayImage = './img/tennis_ball.svg'
+      var BASE_SIZE = {lat: 0.06, lng: 0.10};
+      var UNIT_SIZE = {lat: 0.005, lng: 0.005};
 
-      if (val != '') {
-	layerOptions.query.where = val + ' > 0';
+      var dLat = overlayDLat * UNIT_SIZE.lat;
+      var dLng = overlayDLng * UNIT_SIZE.lng;
+      var height = overlayZoom * BASE_SIZE.lat;
+      var width  = overlayZoom * BASE_SIZE.lng;
+      var overlayBounds = {
+	east: CENTER.lng + dLng + width / 2,
+	west: CENTER.lng + dLng - width / 2,
+	north: CENTER.lat + dLat + height / 2,
+	south: CENTER.lat + dLat - height / 2
+      };
+      var overlayOptions = {
+	opacity: 0.6
+      }
+      
+      overlay = new google.maps.GroundOverlay(
+	overlayImage,
+	overlayBounds,
+	overlayOptions
+      );
+      showOverlay();
+    }
+    
+    function getBounds () {
+    }
+    
+
+    function shiftOverlay(direction) {
+      switch (direction) {
+	case 'up':
+	  overlayDLat += 1;
+	  break;
+	case 'down':
+	  overlayDLat -= 1;
+	  break;
+	case 'left':
+	  overlayDLng += 1;
+	  break;
+	case 'right':
+	  overlayDLng -= 1;
+	  break;
+      }
+      hideOverlay();
+      setupOverlay();
+    }
+    
+    function zoomOverlay(val) {
+      if (val == '+') {
+	overlayZoom += 0.05
+      } else {
+	overlayZoom -= 0.05
+      }
+      hideOverlay();
+      setupOverlay();
+    }
+    
+    function changeFilter(condition) {
+      if (condition != '') {
+	layerOptions.query.where = condition + ' > 0';
       }
       layer.setOptions(layerOptions);
     }
