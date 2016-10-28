@@ -153,6 +153,17 @@
       }
     };
 
+    MyOverlay.prototype.setImage = function(url, width, height) {
+      if (this.div_) {
+	var div = this.div_;
+	div.style.width = width + 'px';
+	div.style.height = height + 'px';
+	
+	var img = div.childNodes[0];
+	img.src = url;
+      }
+    };
+
     function changeFilter(condition) {
       if (condition != '') {
         layerOptions.query.where = condition + ' > 0';
@@ -161,7 +172,7 @@
     }
         
     function initMap() {
-      var center = new google.maps.LatLng(35.685175, 139.7528);
+      var center = new google.maps.LatLng(35.6905, 139.7020);
 
       map = new google.maps.Map(document.getElementById('map'), {
 	center: center,
@@ -169,16 +180,15 @@
 	mapTypeId: google.maps.MapTypeId.TERRAIN
       });
 
-      var overlayImage = './img/tennis_ball.png'
-
-      overlayWidth = 320;
-      overlayHeight = 240;
+      //var srcUrl = './img/tennis_ball.png'
+      var srcUrl = './img/pixel.png'
       overlayOptions = {
-	width: 320,
-	height: 240,
+	width: 300,
+	height: 300,
 	opacity: 0.5
       };
-      overlay = new MyOverlay(overlayImage, center, overlayOptions);
+      
+      overlay = new MyOverlay(srcUrl, center, overlayOptions);
       overlay.setMap(map);
 
       layerOptions = {
@@ -218,7 +228,13 @@
     </div>
     <div class="custom-control" id="overlay">
       <div>
-	<input type="button" value="switch"  onClick="overlay.toggle()" />
+	<input type="button" value="switch" onClick="overlay.toggle()" />
+      </div>
+      <div>
+	<input type="button" value="tennis"
+	       onClick="overlay.setImage('img/tennis_ball.png', 400, 300)" />
+	<input type="button" value="square"
+	       onClick="overlay.setImage('img/pixel.png', 300, 300)" />
       </div>
       <div>
 	<input type="button" value="&and;" onClick="overlay.shift(0, -10)" />
@@ -227,8 +243,8 @@
 	<input type="button" value="&gt;"  onClick="overlay.shift(10, 0)" />
       </div>
       <div>
-	<input type="button" value="+" onClick="overlay.expand(1.05)" />
-	<input type="button" value="-" onClick="overlay.expand(0.95)" />
+	<input type="button" value="+"  onClick="overlay.expand(1.05)" />
+	<input type="button" value="-"  onClick="overlay.expand(0.95)" />
 	<input type="button" value="r+" onClick="overlay.rotate(10)" />
 	<input type="button" value="r-" onClick="overlay.rotate(-10)" />
       </div>
