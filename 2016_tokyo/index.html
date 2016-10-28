@@ -5,34 +5,80 @@
     <meta charset="utf-8" />
     <title>Ramen Tour 2016 TOKYO</title>
     <style type="text/css">
-     html, body { height: 100%; margin: 0; padding: 0; }
-     #map { height: 100%; }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    #map { height: 100%; }
+    .custom-control {
+      position: absolute; z-index:100;
+      padding: 8px; text-align: center;
+      color: rgb(86,86,86); background-color: rgb(255,255,255);
+      font-family: Roboto,Arial,sans-serif; font-size: 11px; font-weight: 400;
+      border-radius: 2px; box-shadow: rgba(0,0,0,0.298039) 0px 1px 4px -1px;
+    }
+    #filter {
+      top:10px; right:10px;
+    }
     </style>
   </head>
   <body>
     <div id="map"></div>
+    <img id="route_img" src="./img/tennis_ball.png" alt="Tennis Ball" />
+    <div class="custom-control" id="filter">
+      <input type="radio" name="filter"  onChange="changeFilter()" value="all" checked="true">all</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="delegate1">delegate(lv.1)</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="delegate2">delegate(lv.2)</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="everyone">everyone</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="someone">someone</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="kambe">kambe</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="iga">iga</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="kazu">kazu</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="hama">hama</input>
+      <input type="radio" name="filter"  onChange="changeFilter()" value="square">square</input>
+    </div>
     <script type="text/javascript">
-     
-     function initMap() {
-       var map = new google.maps.Map(document.getElementById('map'), {
-	 center: {lat: 35.685175, lng: 139.7528},
-	 zoom: 12,
-	 mapTypeId: google.maps.MapTypeId.TERRAIN
-       });
-       var layer = new google.maps.FusionTablesLayer({
-	 map: map,
-	 query: {
-	   select: 'latitude',
-	   from: '1znknfE0Ae6tbzdKSE4Xma_8SmxgoeU7GleIw3D3K'
-	 },
-	 options: {
-           styleId: 2,
-           templateId: 2
-	 }
-       });
+    var map;
+    var layer;
+    var layerOptions
+    
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+	center: {lat: 35.685175, lng: 139.7528},
+	zoom: 12,
+	mapTypeId: google.maps.MapTypeId.TERRAIN
+      });
+      layerOptions = {
+	query: {
+	  select: 'latitude',
+	  from: '1znknfE0Ae6tbzdKSE4Xma_8SmxgoeU7GleIw3D3K',
+	  where: ''
+	},
+	options: {
+	  styleId: 2,
+	  templateId:2
+	}
+      };
+      
+      layer = new google.maps.FusionTablesLayer(layerOptions);
 
-     }
-     
+      layer.setOptions(layerOptions);
+      layer.setMap(map);
+
+    }
+
+    function changeFilter() {
+      var filter = document.getElementsByName('filter');
+      var val = '';
+      for (i=0; i < filter.length; i++) {
+	if (filter[i].checked) {
+	  val = filter[i].value;
+	}
+      }
+
+      if (val != '') {
+	layerOptions.query.where = val + ' > 0';
+      }
+      layer.setOptions(layerOptions);
+    }
+    
     </script>
     <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAlM3aSSSeiBLMo2aQ3_EuUtK_NdtH-IU&language=ja&region=JP&callback=initMap" type="text/javascript">
