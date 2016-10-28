@@ -5,69 +5,182 @@
     <meta charset="utf-8" />
     <title>Ramen Tour 2016 TOKYO</title>
     <style type="text/css">
-    html, body { height: 100%; margin: 0; padding: 0; }
-    #map { height: 100%; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100%;
+    }
     .custom-control {
-      position: absolute; z-index:100;
-      padding: 8px; text-align: center;
-      color: rgb(86,86,86); background-color: rgb(255,255,255);
-      font-family: Roboto,Arial,sans-serif; font-size: 11px; font-weight: 400;
-      border-radius: 2px; box-shadow: rgba(0,0,0,0.298039) 0px 1px 4px -1px;
+      position: absolute;
+      z-index: 5;
+      padding: 5px;
+      text-align: left;
+      background-color: #fff;
+      color: #333;
+      font-family: 'Roboto', 'Arial', 'sans-serif';
+      font-size: 11px;
+      font-weight: 400;
+      border-radius: 2px;
+      box-shadow: rgba(0,0,0,0.298039) 0px 1px 4px -1px;
     }
     #filter {
-      top:10px; right:10px;
+      bottom: 24px;
+      right: 156px;
     }
-    #visible {
-      bottom:10px; left:10px;
-    }
-    #adjust {
-      bottom:10px; left:120px;
+    #overlay {
+      bottom:24px;
+      right: 40px;
     }
     </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <div class="custom-control" id="filter">
-      <input type="radio" name="filter"  onChange="changeFilter('all')" checked="true">all</input>
-      <input type="radio" name="filter"  onChange="changeFilter('delegate1')">delegate(lv.1)</input>
-      <input type="radio" name="filter"  onChange="changeFilter('delegate2')">delegate(lv.2)</input>
-      <input type="radio" name="filter"  onChange="changeFilter('everyone')">everyone</input>
-      <input type="radio" name="filter"  onChange="changeFilter('someone')">someone</input>
-      <input type="radio" name="filter"  onChange="changeFilter('kambe')">kambe</input>
-      <input type="radio" name="filter"  onChange="changeFilter('iga')">iga</input>
-      <input type="radio" name="filter"  onChange="changeFilter('kazu')">kazu</input>
-      <input type="radio" name="filter"  onChange="changeFilter('hama')">hama</input>
-      <input type="radio" name="filter"  onChange="changeFilter('square')">square</input>
-    </div>
-    <div class="custom-control" id="visible">
-      <input type="radio" name="visible" onChange="showOverlay()" checked="true" />show
-      <input type="radio" name="visible" onChange="hideOverlay()" />hide
-    </div>
-    <div class="custom-control" id="adjust">
-      <input type="button" value="&and;" onClick="shiftOverlay('up')" />
-      <input type="button" value="&or;"  onClick="shiftOverlay('down')" />
-      <input type="button" value="&lt;"  onClick="shiftOverlay('right')" />
-      <input type="button" value="&gt;"  onClick="shiftOverlay('left')" />
-      <input type="button" value="+" onClick="zoomOverlay('+')" />
-      <input type="button" value="-" onClick="zoomOverlay('-')" />
-    </div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAlM3aSSSeiBLMo2aQ3_EuUtK_NdtH-IU&language=ja&region=JP">
+    </script>
     <script type="text/javascript">
-    var CENTER = {lat: 35.685175, lng: 139.7528};
     
     var map;
     var layer;
     var layerOptions;
     var overlay;
-    var overlayZoom = 1.0;
-    var overlayDLat = 0.0;
-    var overlayDLng = 0.0;
     
+    MyOverlay.prototype = new google.maps.OverlayView();
+
+    function MyOverlay(image, center, options) {
+      this.image_ = image;
+      this.center_ = center;
+      this.options_ = options;
+
+      this.div_ = null;
+      if (options.map) {
+	this.setMap(options.map);
+      }
+    }
+
+    MyOverlay.prototype.onAdd = function() {
+      var img = document.createElement('img');
+      img.src = this.image_;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      
+      var div = document.createElement('div');
+      div.style.position = 'absolute';
+      
+      div.appendChild(img);
+      this.div_ = div
+
+      var panes = this.getPanes();
+      panes.overlayImage.appendChild(this.div_);
+    };
+    
+    MyOverlay.prototype.draw = function() {
+      var overlayProjection = this.getProjection();
+
+      var center = overlayProjection.fromLatLngToDivPixel(this.center_);
+
+      var img = document.createElement('img');
+      img.src = this.image_;
+
+      var width = (this.options_.width) ? this.options_.width : img.width;
+      var height = (this.options_.height) ? this.options_.height : img.height;
+
+      var opacity = (this.options_.opacity) ? this.options_.opacity : 1.0;
+
+      var div = this.div_;
+      div.style.left = (center.x - width / 2) + 'px';
+      div.style.top = (center.y - height / 2) + 'px';
+      div.style.width = width + 'px';
+      div.style.height = height + 'px';
+      div.style.opacity = opacity;
+    };
+
+    MyOverlay.prototype.onRemove = function() {
+      this.div_.parentNode.removeChild(this.div_);
+      this.div_ = null;
+    };
+
+    MyOverlay.prototype.show = function() {
+      if (this.div_) {
+	this.div_.style.visibility = 'visible';
+      }
+    };
+
+    MyOverlay.prototype.hide = function() {
+      if (this.div_) {
+	this.div_.style.visibility = 'hidden';
+      }
+    };
+
+    MyOverlay.prototype.toggle = function() {
+      if (this.div_) {
+	if (this.div_.style.visibility === 'hidden') {
+	  this.show();
+	} else {
+	  this.hide();
+	}
+      }
+    };
+
+    MyOverlay.prototype.expand = function(mag) {
+      if (this.div_) {
+	var div = this.div_;
+	var width = parseFloat(div.style.width) * mag;
+	var height = parseFloat(div.style.height) * mag;
+	div.style.width = width + 'px';
+	div.style.height = height + 'px';
+      }
+    };
+
+    MyOverlay.prototype.shift = function(x, y) {
+      if (this.div_) {
+	var div = this.div_;
+	
+	var left = parseFloat(div.style.left) + x;
+	var top = parseFloat(div.style.top) + y;
+	div.style.left = left + 'px';
+	div.style.top = top + 'px';
+      }
+    };
+
+    MyOverlay.prototype.rotate = function(d) {
+      if (this.div_) {
+	var div = this.div_;
+	var deg = (div.style.transform) ? parseInt(div.style.transform.match(/-?\d+/)) : 0;
+	var rotate = 'rotate(' + (deg + d) + 'deg)';
+	div.style.transform = rotate;
+	div.style.webkitTransform = rotate;
+	div.style.msTransform = rotate;
+      }
+    };
+
+    function changeFilter(condition) {
+      if (condition != '') {
+        layerOptions.query.where = condition + ' > 0';
+      }
+      layer.setOptions(layerOptions);
+    }
+        
     function initMap() {
+      var center = new google.maps.LatLng(35.685175, 139.7528);
+
       map = new google.maps.Map(document.getElementById('map'), {
-	center: CENTER,
+	center: center,
 	zoom: 12,
 	mapTypeId: google.maps.MapTypeId.TERRAIN
       });
+
+      var overlayImage = './img/tennis_ball.png'
+
+      overlayWidth = 320;
+      overlayHeight = 240;
+      overlayOptions = {
+	width: 320,
+	height: 240,
+	opacity: 0.5
+      };
+      overlay = new MyOverlay(overlayImage, center, overlayOptions);
+      overlay.setMap(map);
+
       layerOptions = {
 	query: {
 	  select: 'latitude',
@@ -85,90 +198,40 @@
       layer.setOptions(layerOptions);
       layer.setMap(map);
 
-      setupOverlay();
     }
 
-    function showOverlay() {
-      overlay.setMap(map);
-      var adjustDiv = document.getElementById('adjust');
-      adjustDiv.style.visibility = 'visible';
-    };
-    function hideOverlay() {
-      overlay.setMap(null);
-      var adjustDiv = document.getElementById('adjust');
-      adjustDiv.style.visibility = 'hidden';
-    }
-    
-    function setupOverlay() {
-      var overlayImage = './img/tennis_ball.svg'
-      var BASE_SIZE = {lat: 0.06, lng: 0.10};
-      var UNIT_SIZE = {lat: 0.005, lng: 0.005};
-
-      var dLat = overlayDLat * UNIT_SIZE.lat;
-      var dLng = overlayDLng * UNIT_SIZE.lng;
-      var height = overlayZoom * BASE_SIZE.lat;
-      var width  = overlayZoom * BASE_SIZE.lng;
-      var overlayBounds = {
-	east: CENTER.lng + dLng + width / 2,
-	west: CENTER.lng + dLng - width / 2,
-	north: CENTER.lat + dLat + height / 2,
-	south: CENTER.lat + dLat - height / 2
-      };
-      var overlayOptions = {
-	opacity: 0.6
-      }
-      
-      overlay = new google.maps.GroundOverlay(
-	overlayImage,
-	overlayBounds,
-	overlayOptions
-      );
-      showOverlay();
-    }
-    
-    function getBounds () {
-    }
-    
-
-    function shiftOverlay(direction) {
-      switch (direction) {
-	case 'up':
-	  overlayDLat += 1;
-	  break;
-	case 'down':
-	  overlayDLat -= 1;
-	  break;
-	case 'left':
-	  overlayDLng += 1;
-	  break;
-	case 'right':
-	  overlayDLng -= 1;
-	  break;
-      }
-      hideOverlay();
-      setupOverlay();
-    }
-    
-    function zoomOverlay(val) {
-      if (val == '+') {
-	overlayZoom += 0.05
-      } else {
-	overlayZoom -= 0.05
-      }
-      hideOverlay();
-      setupOverlay();
-    }
-    
-    function changeFilter(condition) {
-      if (condition != '') {
-	layerOptions.query.where = condition + ' > 0';
-      }
-      layer.setOptions(layerOptions);
-    }
+    google.maps.event.addDomListener(window, 'load', initMap);
     
     </script>
-    <script async defer
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAlM3aSSSeiBLMo2aQ3_EuUtK_NdtH-IU&language=ja&region=JP&callback=initMap" type="text/javascript">
-    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="custom-control" id="filter">
+      <div>
+	<input type="radio" name="filter"  onChange="changeFilter('all')" checked="true" />all
+	<input type="radio" name="filter"  onChange="changeFilter('delegate2')" />delegate
+      </div>
+      <div>
+	<input type="radio" name="filter"  onChange="changeFilter('someone')">someone</input>
+	<input type="radio" name="filter"  onChange="changeFilter('square')">square</input>
+      </div>
+    </div>
+    <div class="custom-control" id="overlay">
+      <div>
+	<input type="button" value="switch"  onClick="overlay.toggle()" />
+      </div>
+      <div>
+	<input type="button" value="&and;" onClick="overlay.shift(0, -10)" />
+	<input type="button" value="&or;"  onClick="overlay.shift(0, 10)" />
+	<input type="button" value="&lt;"  onClick="overlay.shift(-10, 0)" />
+	<input type="button" value="&gt;"  onClick="overlay.shift(10, 0)" />
+      </div>
+      <div>
+	<input type="button" value="+" onClick="overlay.expand(1.05)" />
+	<input type="button" value="-" onClick="overlay.expand(0.95)" />
+	<input type="button" value="r+" onClick="overlay.rotate(10)" />
+	<input type="button" value="r-" onClick="overlay.rotate(-10)" />
+      </div>
+    </div>
   </body>
 </html>
