@@ -43,6 +43,7 @@
     var layer;
     var layerOptions;
     var overlay;
+    var myLatLng;
     
     MyOverlay.prototype = new google.maps.OverlayView();
 
@@ -170,7 +171,32 @@
       }
       layer.setOptions(layerOptions);
     }
-        
+
+    // ( 1 )位置情報を取得します。
+    function getLocation(){
+      if (navigator.geolocation) {
+	// 現在の位置情報取得を実施 正常に位置情報が取得できると、
+	// successCallbackがコールバックされます。
+	navigator.geolocation.getCurrentPosition
+	(successCallback,errorCallback);
+      } else {
+	alert("本ブラウザではGeolocationが使えません");
+      }
+    }
+
+    // ( 2 )位置情報が正常に取得されたら
+    function successCallback(pos) {
+      var x = pos.coords.latitude;
+      var y = pos.coords.longitude;
+      
+      myLatLng = new google.maps.LatLng(x, y);
+    }
+    
+    function errorCallback(error) {
+      alert( "位置情報が許可されていません");
+      myLatLng = null;
+    }
+    
     function initMap() {
       var center = new google.maps.LatLng(35.6905, 139.7020);
 
@@ -208,8 +234,20 @@
       layer.setOptions(layerOptions);
       layer.setMap(map);
 
+      getLocation();
+      if (myLatLng == null) {
+	myLatLng = center;
+      }
+      
+      var icon = 'img/bluedot.png';
+      var marker = new google.maps.Marker({
+	position: myLatLng,
+	icon: icon
+      });
+      marker.setMap(map);
     }
 
+    
     google.maps.event.addDomListener(window, 'load', initMap);
     
     </script>
