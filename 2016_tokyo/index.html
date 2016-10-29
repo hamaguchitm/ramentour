@@ -188,8 +188,12 @@
     function successCallback(pos) {
       var x = pos.coords.latitude;
       var y = pos.coords.longitude;
-      
-      myLatLng = new google.maps.LatLng(x, y);
+
+      var marker = new google.maps.Marker({
+	position: new google.maps.LatLng(x, y),
+	icon: {url: 'img/bluedot.png', size: new google.maps.Size(100,100)}
+      });
+      marker.setMap(map);
     }
     
     function errorCallback(error) {
@@ -235,16 +239,6 @@
       layer.setMap(map);
 
       getLocation();
-      if (myLatLng == null) {
-	myLatLng = center;
-      }
-      
-      var icon = 'img/bluedot.png';
-      var marker = new google.maps.Marker({
-	position: myLatLng,
-	icon: icon
-      });
-      marker.setMap(map);
     }
 
     
