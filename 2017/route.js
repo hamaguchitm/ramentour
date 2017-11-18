@@ -3,6 +3,7 @@ var layer;
 var layerOptions;
 var kmlSrc = 'https://hamaguchitm.github.io/ramentour/2017/kml/route.kml'
 var iconImage = 'https://hamaguchitm.github.io/ramentour/2017/img/bluedot.png'
+var fusionTableId = '17CtBE8qxdZy3-oa4tJztBLIidkrgztZ6-_16zSRe'
 var myLatLng
 
 function initMap() {
@@ -25,8 +26,8 @@ function initMap() {
     var shopLayer = new google.maps.FusionTablesLayer({
         query: {
             select: 'latitude',
-            from: '1znknfE0Ae6tbzdKSE4Xma_8SmxgoeU7GleIw3D3K',
-            where: ''
+            from: fusionTableId,
+            where: 'close = 0 AND distant = 0'
         },
         options: {
               styleId: 2,
