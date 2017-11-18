@@ -217,12 +217,17 @@
 	mapTypeId: google.maps.MapTypeId.TERRAIN
       });
 
+      var ctaLayer = new google.maps.KmlLayer({
+        url: './kml/route.kml',
+        map: map
+      });
+
       //var srcUrl = './img/tennis_ball.png'
       //var srcUrl = './img/pixel.png'
-      var srcUrl = './img/pigeon2.png'
+      var srcUrl = './img/magritte2.png'
       overlayOptions = {
-	width: 300,
-	height: 300,
+	width: 696,
+	height: 980,
 	opacity: 1.0,
 	rotate: 20
       };
@@ -276,8 +281,8 @@
 	       onClick="overlay.setImage('img/tennis_ball.png', 400, 300)" />
 	<input type="button" value="square"
 	       onClick="overlay.setImage('img/pixel.png', 300, 300)" />
-	<input type="button" value="pigeon2"
-	       onClick="overlay.setImage('img/pigeon2.png', 300, 300)" />
+	<input type="button" value="magritte2"
+	       onClick="overlay.setImage('img/magritte2.png', 300, 300)" />
       </div>
       <div>
 	<input type="button" value="&and;" onClick="overlay.shift(0, -10)" />
