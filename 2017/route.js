@@ -57,3 +57,5 @@ function initMap() {
     }
 }
 google.maps.event.addDomListener(window, 'load', initMap);
+
+setInterval("initMap()", 30*1000)
