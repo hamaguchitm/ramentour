@@ -1,10 +1,10 @@
-var map;
-var layer;
-var layerOptions;
-var kmlSrc = 'https://hamaguchitm.github.io/ramentour/2017/kml/route.kml'
-var iconImage = 'https://hamaguchitm.github.io/ramentour/2017/img/bluedot.png'
-var fusionTableId = '17CtBE8qxdZy3-oa4tJztBLIidkrgztZ6-_16zSRe'
-var myLatLng
+var map = null;
+var layer = null;
+var layerOptions = null;
+var kmlSrc = 'https://hamaguchitm.github.io/ramentour/2017/kml/route.kml';
+var iconImage = 'https://hamaguchitm.github.io/ramentour/2017/img/bluedot.png';
+var fusionTableId = '17CtBE8qxdZy3-oa4tJztBLIidkrgztZ6-_16zSRe';
+var marker = null;
 
 function initMap() {
     var center = new google.maps.LatLng(35.675581, 139.692387);
@@ -34,18 +34,26 @@ function initMap() {
               templateId:2
         },
         map: map
-    })
+    });
+}
+google.maps.event.addDomListener(window, 'load', initMap);
 
+function autoUpdate() {
     // 現在地表示
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                myLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                var marker = new google.maps.Marker({
-                   position: myLatLng,
-                   icon: iconImage,
-                   map: map
-               });
+                var myLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+                if (marker) {
+                    marker.setPosition(myLatLng);
+                } else {
+                    marker = new google.maps.Marker({
+                       position: myLatLng,
+                       icon: iconImage,
+                       map: map
+                    });
+                }
             },
             function(error) {
                 alert( "位置情報が許可されていません");
@@ -55,7 +63,6 @@ function initMap() {
     } else {
         alert("本ブラウザではGeolocationが使えません");
     }
+    setTimeout(autoUpdate, 30*1000)
 }
-google.maps.event.addDomListener(window, 'load', initMap);
-
-//setInterval("initMap()", 30*1000)
+autoUpdate()
