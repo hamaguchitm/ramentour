@@ -88,10 +88,7 @@ function initMap() {
     if (location.search.length > 2) {
         var x = location.search.substr(1);
         if (!isNaN(x)) {
-            console.log('BBBBB')
-            console.log(map.getZoom())
             map.setZoom(Number(x))
-            console.log(map.getZoom())
         }
     }
 
