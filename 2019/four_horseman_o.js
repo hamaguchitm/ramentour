@@ -17,6 +17,17 @@ function getLocation() {
           });
           marker.setMap(map);
           map.setCenter(center);
+
+          if (location.search.length > 2) {
+              var x = location.search.substr(1);
+              if (!isNaN(x)) {
+                  map.setZoom(Number(x));
+              }
+          }
+          else {
+              map.setZoom(15);
+          }
+
         });
     } else {
         alert("本ブラウザではGeolocationが使えません");
@@ -84,13 +95,6 @@ function initMap() {
       // infowindow.setOptions({pixelOffset: new google.maps.Size(0,-30)});
       infowindow.open(map);
     });
-
-    if (location.search.length > 2) {
-        var x = location.search.substr(1);
-        if (!isNaN(x)) {
-            map.setZoom(Number(x))
-        }
-    }
 
     getLocation();
 }
