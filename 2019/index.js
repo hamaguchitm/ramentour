@@ -1,14 +1,41 @@
 var map;
-var center;
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          var center = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude)
+          var marker = new google.maps.Marker({
+              position: center,
+              icon: {
+                  fillColor: '#0000FF',
+                  fillOpacity: 0.8,
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 7,
+                  strokeColor: '#0000FF',
+                  strokeWeight: 0.1
+              }
+          });
+          marker.setMap(map);
+          map.setCenter(center);
+        });
+    } else {
+        alert("本ブラウザではGeolocationが使えません");
+    }
+}
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       zoom: 14,
-      center:  new google.maps.LatLng(35.68616, 139.744991)
+      center: new google.maps.LatLng(35.68616, 139.744991)
+    });
+
+    var routeLayer = new google.maps.KmlLayer({
+        url: 'https://hamaguchitm.github.io/ramentour/2019/data/route.kml',
+        map: map
     });
 
     map.data.loadGeoJson(
-        './store_delegate.geojson');
+        './data/store_delegate.geojson');
 
     map.data.setStyle(function(feature) {
         var score = feature.getProperty('score');
@@ -52,17 +79,13 @@ function initMap() {
                  '<tr><td style="width: 240px">営業時間: ' + open_time + '</td></tr>' +
                  '<tr><td style="width: 240px">定休日: ' + closed_days + '</td></tr>' +
                  '<tr><td style="width: 240px">席数: ' + sheets + '</td></tr></table>'
-                 // '<img src="' + icon_url + '" style="vertical-align: top; height: 120px"/>' +
-                 // '<div>電話： <a href="tel:' + tel + '">' + tel + '</a></div>' +
-                 // '<div>営業時間： ' + open_time + '</div>' +
-                 // '<div>定休日： ' + closed_days + '</div>' +
-                 // '<div>席数： ' + sheets + '</div>'
       infowindow.setContent(html);
       infowindow.setPosition(event.feature.getGeometry().get());
       // infowindow.setOptions({pixelOffset: new google.maps.Size(0,-30)});
       infowindow.open(map);
     });
 
+    getLocation();
 }
 
 google.maps.event.addDomListener(window, 'load', initMap);
