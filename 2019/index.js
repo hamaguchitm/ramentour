@@ -47,7 +47,7 @@ function initMap() {
     });
 
     map.data.loadGeoJson(
-        './data/store_all.geojson');
+        './data/store_delegated.geojson');
 
     map.data.setStyle(function(feature) {
         var score = feature.getProperty('score');

@@ -37,17 +37,17 @@ function getLocation() {
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 15,
+      zoom: 17,
       center: new google.maps.LatLng(35.68616, 139.744991)
     });
 
     var routeLayer = new google.maps.KmlLayer({
-        url: 'https://hamaguchitm.github.io/ramentour/2019/data/four_horseman_o.kml',
+        url: 'https://hamaguchitm.github.io/ramentour/2019/data/route.kml',
         map: map
     });
 
     map.data.loadGeoJson(
-        './data/store_delegated.geojson');
+        './data/store_all.geojson');
 
     map.data.setStyle(function(feature) {
         var score = feature.getProperty('score');
