@@ -22,6 +22,7 @@ function getLocation() {
               var x = location.search.substr(1);
               if (!isNaN(x)) {
                   map.setZoom(Number(x));
+                  console.log(x);
               }
           }
           else {
