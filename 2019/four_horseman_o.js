@@ -17,7 +17,16 @@ function getLocation() {
           });
           marker.setMap(map);
           map.setCenter(center);
-          map.setZoom(15);
+
+          if (location.search.length > 2) {
+              var x = location.search.substr(1);
+              if (!isNaN(x)) {
+                  map.setZoom(Number(x));
+              }
+          }
+          else {
+              map.setZoom(17);
+          }
 
         });
     } else {
@@ -27,7 +36,7 @@ function getLocation() {
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 14,
+      zoom: 15,
       center: new google.maps.LatLng(35.68616, 139.744991)
     });
 
