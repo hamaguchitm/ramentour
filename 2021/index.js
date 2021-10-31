@@ -42,8 +42,8 @@ function initMap() {
     });
 
     map.data.loadGeoJson(
-        //'./data/store_all.geojson'
-        './data/store_summarize.geojson'
+        './data/store_all.geojson'
+//        './data/store_summarize.geojson'
     );
 
     map.data.setStyle(function(feature) {
