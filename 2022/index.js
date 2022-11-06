@@ -1,5 +1,5 @@
 let map;
-let selected_data = "summarize";
+let selected_data = "all";
 
 function selectStores() {
     if (selected_data == "summarize") {
